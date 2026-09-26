@@ -1,39 +1,85 @@
-import { useState } from 'react'
-import './App.css'
-import Products from './pages/Products'
+import { useState } from "react";
+import "./App.css";
 
-function App() {
-  const [activePage, setActivePage] = useState('Dashboard')
+const navItems = [
+  "Dashboard",
+  "Products",
+  "Receipts",
+  "Delivery Orders",
+  "Internal Transfers",
+  "Inventory Adjustments",
+  "Move History",
+];
 
-  const [scannerPosition, setScannerPosition] = useState({
-    x: 0,
-    y: 0,
-  })
+const kpis = [
+  {
+    label: "Total Products",
+    value: "1,248",
+    description: "Products currently tracked",
+  },
+  {
+    label: "Low / Out of Stock",
+    value: "24",
+    description: "Items need attention",
+    warning: true,
+  },
+  {
+    label: "Pending Receipts",
+    value: "18",
+    description: "Incoming stock operations",
+  },
+  {
+    label: "Pending Deliveries",
+    value: "12",
+    description: "Outgoing stock operations",
+  },
+  {
+    label: "Transfers Scheduled",
+    value: "7",
+    description: "Internal movements",
+  },
+];
 
-  const handleScannerMove = (event) => {
-    const rect = event.currentTarget.getBoundingClientRect()
+const activities = [
+  {
+    product: "Steel Rods",
+    type: "Receipt",
+    location: "Main Warehouse",
+    amount: "+50",
+    positive: true,
+  },
+  {
+    product: "Office Chairs",
+    type: "Delivery",
+    location: "Main Warehouse",
+    amount: "-10",
+    positive: false,
+  },
+  {
+    product: "Production Materials",
+    type: "Internal Transfer",
+    location: "",
+    amount: "→",
+  },
+];
 
-    const x = ((event.clientX - rect.left) / rect.width - 0.5) * 18
-    const y = ((event.clientY - rect.top) / rect.height - 0.5) * 12
+const alerts = [
+  {
+    product: "Steel Rods",
+    message: "Only 8 kg remaining",
+  },
+  {
+    product: "Office Chairs",
+    message: "Out of stock",
+  },
+  {
+    product: "Packaging Boxes",
+    message: "Below minimum level",
+  },
+];
 
-    setScannerPosition({ x, y })
-  }
-
-  const resetScannerPosition = () => {
-    setScannerPosition({ x: 0, y: 0 })
-  }
-
-  const navigationItems = [
-    'Dashboard',
-    'Products',
-    'Receipts',
-    'Delivery Orders',
-    'Internal Transfers',
-    'Inventory Adjustments',
-    'Move History',
-  ]
-
-  const renderDashboard = () => (
+function Dashboard() {
+  return (
     <>
       <header className="topbar">
         <div>
@@ -42,74 +88,63 @@ function App() {
         </div>
 
         <button className="profile-button">
+          <span
+            style={{
+              display: "inline-block",
+              width: "8px",
+              height: "8px",
+              borderRadius: "50%",
+              background: "#16834b",
+              marginRight: "9px",
+            }}
+          />
           Inventory Manager
         </button>
       </header>
 
       <section className="kpi-grid">
-        <div className="kpi-card">
-          <span>Total Products</span>
-          <strong>1,248</strong>
-          <small>Products currently tracked</small>
-        </div>
-
-        <div className="kpi-card warning">
-          <span>Low / Out of Stock</span>
-          <strong>24</strong>
-          <small>Items need attention</small>
-        </div>
-
-        <div className="kpi-card">
-          <span>Pending Receipts</span>
-          <strong>18</strong>
-          <small>Incoming stock operations</small>
-        </div>
-
-        <div className="kpi-card">
-          <span>Pending Deliveries</span>
-          <strong>12</strong>
-          <small>Outgoing stock operations</small>
-        </div>
-
-        <div className="kpi-card">
-          <span>Transfers Scheduled</span>
-          <strong>7</strong>
-          <small>Internal movements</small>
-        </div>
+        {kpis.map((item) => (
+          <article
+            className={`kpi-card ${item.warning ? "warning" : ""}`}
+            key={item.label}
+          >
+            <span>{item.label}</span>
+            <strong>{item.value}</strong>
+            <small>{item.description}</small>
+          </article>
+        ))}
       </section>
 
-      <section
-        className="scanner-card"
-        onMouseMove={handleScannerMove}
-        onMouseLeave={resetScannerPosition}
-      >
+      <section className="scanner-card">
         <div className="scanner-info">
           <span className="scanner-label">
+            <span
+              style={{
+                display: "inline-block",
+                width: "7px",
+                height: "7px",
+                borderRadius: "50%",
+                background: "#f5c85b",
+                marginRight: "8px",
+              }}
+            />
             STOCKSENSE SCANNER
           </span>
 
           <h2>Ready to scan inventory</h2>
 
-          <p>
-            Track products, locations and stock movements.
-          </p>
+          <p>Track products, locations and stock movements.</p>
         </div>
 
-        <div
-          className="scanner-visual"
-          style={{
-            transform: `translate(${scannerPosition.x}px, ${scannerPosition.y}px)`,
-          }}
-        >
+        <div className="scanner-visual">
           <div className="scanner-box">
-            <div className="box-top"></div>
-
+            <div className="box-top" />
             <div className="box-front">
               <span>SS</span>
             </div>
           </div>
 
-          <div className="scan-line"></div>
+          <div className="scan-line" />
         </div>
       </section>
 
@@ -121,36 +156,36 @@ function App() {
               <p>Latest inventory movements</p>
             </div>
 
-            <button className="secondary-button">
-              View History
-            </button>
+            <button className="secondary-button">View History</button>
           </div>
 
-          <div className="activity">
-            <div>
-              <strong>Steel Rods</strong>
-              <span>Receipt • Main Warehouse</span>
-            </div>
+          <div>
+            {activities.map((activity) => (
+              <div className="activity" key={activity.product}>
+                <div>
+                  <strong>{activity.product}</strong>
 
-            <b className="positive">+50</b>
-          </div>
+                  <span>
+                    {activity.type}
+                    {activity.location
+                      ? ` • ${activity.location}`
+                      : ""}
+                  </span>
+                </div>
 
-          <div className="activity">
-            <div>
-              <strong>Office Chairs</strong>
-              <span>Delivery • Main Warehouse</span>
-            </div>
-
-            <b className="negative">-10</b>
-          </div>
-
-          <div className="activity">
-            <div>
-              <strong>Production Materials</strong>
-              <span>Internal Transfer • Rack A → Rack B</span>
-            </div>
-
-            <b>→</b>
+                <strong
+                  className={
+                    activity.positive
+                      ? "positive"
+                      : activity.amount === "-10"
+                      ? "negative"
+                      : ""
+                  }
+                >
+                  {activity.amount}
+                </strong>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -162,32 +197,52 @@ function App() {
             </div>
           </div>
 
-          <div className="alert">
-            <strong>Steel Rods</strong>
-            <span>Only 8 kg remaining</span>
-          </div>
-
-          <div className="alert">
-            <strong>Office Chairs</strong>
-            <span>Out of stock</span>
-          </div>
-
-          <div className="alert">
-            <strong>Packaging Boxes</strong>
-            <span>42 pcs remaining</span>
+          <div>
+            {alerts.map((alert) => (
+              <div className="alert" key={alert.product}>
+                <strong>{alert.product}</strong>
+                <span>{alert.message}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
     </>
-  )
+  );
+}
 
-  const renderPage = () => {
-    if (activePage === 'Products') {
-      return <Products />
-    }
+function PlaceholderPage({ title }) {
+  return (
+    <div className="page-placeholder">
+      <div className="page-placeholder-icon">SS</div>
+      <h1>{title}</h1>
+      <p>
+        Manage your {title.toLowerCase()} from this workspace.
+      </p>
 
-    return renderDashboard()
-  }
+      <div className="placeholder-card">
+        <div>
+          <strong>Coming next</strong>
+          <span>
+            This section is ready for the backend and database
+            integration.
+          </span>
+        </div>
+
+        <button className="secondary-button">
+          Add New
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [activePage, setActivePage] = useState("Dashboard");
+
+  const handleNavigation = (item) => {
+    setActivePage(item);
+  };
 
   return (
     <div className="app">
@@ -195,11 +250,15 @@ function App() {
         <div className="logo">StockSense</div>
 
         <nav>
-          {navigationItems.map((item) => (
+          {navItems.map((item) => (
             <a
+              href={`#${item.toLowerCase().replaceAll(" ", "-")}`}
               key={item}
-              className={activePage === item ? 'active' : ''}
-              onClick={() => setActivePage(item)}
+              className={activePage === item ? "active" : ""}
+              onClick={(event) => {
+                event.preventDefault();
+                handleNavigation(item);
+              }}
             >
               {item}
             </a>
@@ -207,16 +266,39 @@ function App() {
         </nav>
 
         <div className="sidebar-bottom">
-          <a>Settings</a>
-          <a>My Profile</a>
+          <a
+            href="#settings"
+            className={activePage === "Settings" ? "active" : ""}
+            onClick={(event) => {
+              event.preventDefault();
+              handleNavigation("Settings");
+            }}
+          >
+            Settings
+          </a>
+
+          <a
+            href="#my-profile"
+            className={activePage === "My Profile" ? "active" : ""}
+            onClick={(event) => {
+              event.preventDefault();
+              handleNavigation("My Profile");
+            }}
+          >
+            My Profile
+          </a>
         </div>
       </aside>
 
       <main className="main-content">
-        {renderPage()}
+        {activePage === "Dashboard" ? (
+          <Dashboard />
+        ) : (
+          <PlaceholderPage title={activePage} />
+        )}
       </main>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
