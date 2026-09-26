@@ -52,7 +52,7 @@ CREATE TABLE stock_movements (
         'adjustment'
     ) NOT NULL,
 
-    quantity INT NOT NULL CHECK (quantity > 0)
+    quantity INT NOT NULL CHECK (quantity > 0),
 
     from_warehouse INT NULL,
     to_warehouse INT NULL,
