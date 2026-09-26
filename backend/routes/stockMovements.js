@@ -270,19 +270,37 @@ router.post("/", (req, res) => {
                     );
                 }
 
-                // Adjustment
-                if (movement_type === "adjustment") {
-                    return res.status(201).json({
-                        id: movementId,
-                        product_id,
-                        movement_type,
-                        quantity,
-                        status: movementStatus,
-                        stockUpdated: false,
-                        message:
-                            "Adjustment recorded. Stock direction needs to be specified separately."
-                    });
-                }
+               // ADJUSTMENT: increase stock
+            if (movement_type === "adjustment") {
+            const updateSql = `
+        UPDATE products
+        SET stock = stock + ?
+        WHERE id = ?
+    `;
+
+    return db.query(
+        updateSql,
+        [quantity, product_id],
+        (err) => {
+            if (err) {
+                console.error("Error updating adjustment:", err);
+                return res.status(500).json({
+                    message: "Adjustment recorded but stock update failed"
+                });
+            }
+
+            return res.status(201).json({
+                id: movementId,
+                product_id,
+                movement_type,
+                quantity,
+                status: movementStatus,
+                stockUpdated: true,
+                newStock: product.stock + quantity
+            });
+        }
+    );
+}
 
                 // Transfer
                 return res.status(201).json({
